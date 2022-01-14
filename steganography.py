@@ -1,5 +1,28 @@
 from PIL import Image
 
+#Convert a picture into a string of concatanated bytes from rgb
+def genDataFromImage(image):
+    data = ''
+    # Extracts pixel
+    imgdata = iter(image.getdata())
+
+    while (True):
+        pixels = [value for value in imgdata.__next__()[:3] +
+                                imgdata.__next__()[:3] +
+                                imgdata.__next__()[:3]]
+        # string of binary data
+        binstr = ''
+
+        # split by 8 pixel (for ASCII)
+        for i in pixels[:8]:
+            binstr += str(i)
+
+        data += chr(int(binstr, 2))
+        # Check the eighth pixel reader information
+        if (pixels[-1] % 2 != 0):
+            return data
+
+
 # Convert encoding data into 8-bit binary ASCII
 def genData(data):
         newd = []
@@ -66,7 +89,7 @@ def encode_enc(newimg, data):
             x += 1
 
 # Encode data into image
-def encode():
+def encode_text():
     img = input("Chemin relatif de l'image (.png) : ")
     image = Image.open(img, 'r')
 
@@ -81,7 +104,7 @@ def encode():
     newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
 
 # Decode the data in the image
-def decode():
+def decode_text():
     img = input("Chemin relatif de l'image (.png) : ")
     image = Image.open(img, 'r')
 
@@ -109,14 +132,36 @@ def decode():
         if (pixels[-1] % 2 != 0):
             return data
 
+def encode_image():
+    data =''
+    return data
+
+def decode_image():
+    data = ''
+
+    newimg = ''
+    new_img_name = input("Entrer le nom de la nouvelle image (.png) : ")
+    newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
+
+
+
+
 def main():
     a = int(input(":: Politique & Sécurité des données ::\n"
-                        "1. Encode\n2. Decode\n"))
+                        "1. Encode some text\n2. Decode some test\n"
+                        "3. Encode some image\n4. Decode some image\n"))
     if (a == 1):
-        encode()
+        encode_text()
 
     elif (a == 2):
-        print("Mots décodés :  " + decode())
+        print("Mots décodés :  " + decode_text())
+
+    if (a == 3):
+        encode_image()
+
+    if (a == 4):
+        decode_image()
+
     else:
         raise Exception("Erreur d'entrée")
 
