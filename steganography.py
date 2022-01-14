@@ -1,7 +1,8 @@
 from PIL import Image
 
-#Génère une chaîne de 0 et 1 à partir d'une image.
-#C'est vraiment une mauvaise idée de faire ça.
+
+# Génère une chaîne de 0 et 1 à partir d'une image.
+# C'est vraiment une mauvaise idée de faire ça.
 def genDataFromImage(image):
     data = ''
     # Extracts pixel
@@ -9,8 +10,8 @@ def genDataFromImage(image):
 
     while (True):
         pixels = [value for value in imgdata.__next__()[:3] +
-                                imgdata.__next__()[:3] +
-                                imgdata.__next__()[:3]]
+                  imgdata.__next__()[:3] +
+                  imgdata.__next__()[:3]]
         # string of binary data
         print(pixels)
 
@@ -25,33 +26,76 @@ def genDataFromImage(image):
             return data
 
 
+# A compléter
+def convert_rgb_256_to_bit(data_256):
+    bits = ['', '', '']
+    i = 0
+    for value in data_256:
+        bits[i] = '{0:08b}'.format(value)
+        i += 1
+    return bits
 
+
+# A compléter
+def convert_rgb_bit_to_256(data_bit):
+    return []
+
+
+# Méthode à réaliser
 def encode_hidden_into_carrying(img_carrying, img_hidden):
-
     # indice de parcours u,v dans carrying
-    carrying_iter = iter(img_carrying.getdata())
     # indice de parcours x,y dans hidden
-    carrying_hidden = iter(img_hidden.getdata())
+    img_carrying_data = iter(img_carrying.getdata())
+    img_hidden_data = iter(img_hidden.getdata())
 
-    # pour chaque pixel x,y de l'hidden :
-
-        # Récupération de [r,g,b] de x et y en base 256
-        # transformation [r,g,b] de x et y en binaire 10010001
+    # DEBUT BOUCLE ITERANT SUR PIXELS IMAGE CACHEE
+    while (True):
+        # Il va falloir controler les tailles dees images pour éviter les out of bound ex
+        # pour chaque pixel x,y de l'hidden, récupération de [r,g,b] de x et y en base 256
+        pix_hidden = [values_256 for values_256 in img_hidden_data.__next__()[:3]]  # tableau de trois valeurs 256
+        pix_hidden_binary = convert_rgb_256_to_bit(pix_hidden)  # tableau de trois valeurs bit format string 10010101
 
         # Récupération de [r,g,b] de u,v et des 7 suivants en base 256
+        # C'est une matrice : en colonne, les rgb, en ligne les 8 pixels sélectionnés
+        pix_carrying = [values_256 for values_256 in img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3] +
+                        img_carrying_data.__next__()[:3]]
         # transformation de [r,g,b] des 8 pixels en calcant le bit de poids faible sur la valeur binaire associée de x,y
 
+        # Index dans la matrice pix_carrying
+        mx = 0  # max 2, trois valeurs rgb pour 8 pixels, taille max 3*8 -1 = 23
 
+        for pix_binary_one_color_as_string in pix_hidden_binary[:]:  # pour chaque couleur
+            for character in list(pix_binary_one_color_as_string):  # pour chaque caractere binaire de la couleur
+                if character == '0' and pix_carrying[mx] % 2 != 0:
+                    pix_carrying[mx] -= 1
 
+                elif character == '1' and pix_carrying[mx] % 2 == 0:
+                    if pix_carrying[mx] != 0:
+                        pix_carrying[mx] -= 1
+                    else:
+                        pix_carrying[mx] += 1
+
+                # Iteration dans la matrice actuelle
+                if mx < 23:
+                    mx += 1
+
+    # FIN BOUCLE ITERANT SUR PIXELS IMAGE CACHEE
 
 
 # Convert encoding data into 8-bit binary ASCII
 def genData(data):
-        newd = []
+    newd = []
 
-        for i in data:
-            newd.append(format(ord(i), '08b'))
-        return newd
+    for i in data:
+        newd.append(format(ord(i), '08b'))
+    return newd
+
 
 # Pixels are modified according to the 8-bit binary ASCII
 def modPix(pix, data):
@@ -63,16 +107,16 @@ def modPix(pix, data):
 
         # Extracting 3 pixels at a time
         pix = [value for value in imdata.__next__()[:3] +
-                                imdata.__next__()[:3] +
-                                imdata.__next__()[:3]]
+               imdata.__next__()[:3] +
+               imdata.__next__()[:3]]
 
         # Pixel value should be made odd for 1 and even for 0
         for j in range(0, 8):
-            if (datalist[i][j] == '0' and pix[j]% 2 != 0):
+            if (datalist[i][j] == '0' and pix[j] % 2 != 0):
                 pix[j] -= 1
 
             elif (datalist[i][j] == '1' and pix[j] % 2 == 0):
-                if(pix[j] != 0):
+                if (pix[j] != 0):
                     pix[j] -= 1
                 else:
                     pix[j] += 1
@@ -82,7 +126,7 @@ def modPix(pix, data):
         # 0 => keep reading / 1 => message is over.
         if (i == lendata - 1):
             if (pix[-1] % 2 == 0):
-                if(pix[-1] != 0):
+                if (pix[-1] != 0):
                     pix[-1] -= 1
                 else:
                     pix[-1] += 1
@@ -95,6 +139,7 @@ def modPix(pix, data):
         yield pix[0:3]
         yield pix[3:6]
         yield pix[6:9]
+
 
 def encode_enc(newimg, data):
     w = newimg.size[0]
@@ -109,6 +154,7 @@ def encode_enc(newimg, data):
             y += 1
         else:
             x += 1
+
 
 # Encode data into image
 def encode_text():
@@ -125,6 +171,7 @@ def encode_text():
     new_img_name = input("Entrer le nom de la nouvelle image (.png) : ")
     newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
 
+
 # Decode the data in the image
 def decode_text():
     img = input("Chemin relatif de l'image (.png) : ")
@@ -136,8 +183,8 @@ def decode_text():
 
     while (True):
         pixels = [value for value in imgdata.__next__()[:3] +
-                                imgdata.__next__()[:3] +
-                                imgdata.__next__()[:3]]
+                  imgdata.__next__()[:3] +
+                  imgdata.__next__()[:3]]
 
         # string of binary data
         binstr = ''
@@ -154,18 +201,19 @@ def decode_text():
         if (pixels[-1] % 2 != 0):
             return data
 
+
 def encode_image():
     img = input("Chemin relatif de l'image porteuse (.png) : ")
     image_carrying = Image.open(img, 'r')
     img = input("Chemin relatif de l'image cachée (.png) : ")
     image_hidden = Image.open(img, 'r')
 
-
     newimg = image_carrying.copy()
     encode_hidden_into_carrying(newimg, image_hidden)
 
     new_img_name = input("Entrer le nom de la nouvelle image (.png) : ")
     newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
+
 
 def decode_image():
     img = input("Chemin relatif de l'image porteuse (.png) : ")
@@ -179,12 +227,10 @@ def decode_image():
     newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
 
 
-
-
 def main():
     a = int(input(":: Politique & Sécurité des données ::\n"
-                        "1. Encode some text\n2. Decode some test\n"
-                        "3. Encode some image\n4. Decode some image\n"))
+                  "1. Encode some text\n2. Decode some test\n"
+                  "3. Encode some image\n4. Decode some image\n"))
     if (a == 1):
         encode_text()
 
@@ -200,7 +246,7 @@ def main():
     else:
         raise Exception("Erreur d'entrée")
 
-if __name__ == '__main__' :
 
+if __name__ == '__main__':
     # Calling main function
     main()
