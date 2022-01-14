@@ -1,6 +1,7 @@
 from PIL import Image
 
-#Convert a picture into a string of concatanated bytes from rgb
+#Génère une chaîne de 0 et 1 à partir d'une image.
+#C'est vraiment une mauvaise idée de faire ça.
 def genDataFromImage(image):
     data = ''
     # Extracts pixel
@@ -11,16 +12,37 @@ def genDataFromImage(image):
                                 imgdata.__next__()[:3] +
                                 imgdata.__next__()[:3]]
         # string of binary data
-        binstr = ''
+        print(pixels)
 
-        # split by 8 pixel (for ASCII)
+        # Parcours des tableaux de 3 trio rgb en entiers, soit taille 9 de 0 à 8
         for i in pixels[:8]:
-            binstr += str(i)
-
-        data += chr(int(binstr, 2))
+            print(i)
+            data += '{0:08b}'.format(i)
+        # binstr = format(ord(i), '08b')
+        print(data)
         # Check the eighth pixel reader information
         if (pixels[-1] % 2 != 0):
             return data
+
+
+
+def encode_hidden_into_carrying(img_carrying, img_hidden):
+
+    # indice de parcours u,v dans carrying
+    carrying_iter = iter(img_carrying.getdata())
+    # indice de parcours x,y dans hidden
+    carrying_hidden = iter(img_hidden.getdata())
+
+    # pour chaque pixel x,y de l'hidden :
+
+        # Récupération de [r,g,b] de x et y en base 256
+        # transformation [r,g,b] de x et y en binaire 10010001
+
+        # Récupération de [r,g,b] de u,v et des 7 suivants en base 256
+        # transformation de [r,g,b] des 8 pixels en calcant le bit de poids faible sur la valeur binaire associée de x,y
+
+
+
 
 
 # Convert encoding data into 8-bit binary ASCII
@@ -138,10 +160,9 @@ def encode_image():
     img = input("Chemin relatif de l'image cachée (.png) : ")
     image_hidden = Image.open(img, 'r')
 
-    image_hidden_as_data = genDataFromImage(image_hidden)
 
     newimg = image_carrying.copy()
-    encode_enc(newimg, image_hidden_as_data)
+    encode_hidden_into_carrying(newimg, image_hidden)
 
     new_img_name = input("Entrer le nom de la nouvelle image (.png) : ")
     newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
