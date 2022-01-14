@@ -133,13 +133,27 @@ def decode_text():
             return data
 
 def encode_image():
-    data =''
-    return data
+    img = input("Chemin relatif de l'image porteuse (.png) : ")
+    image_carrying = Image.open(img, 'r')
+    img = input("Chemin relatif de l'image cachée (.png) : ")
+    image_hidden = Image.open(img, 'r')
+
+    image_hidden_as_data = genDataFromImage(image_hidden)
+
+    newimg = image_carrying.copy()
+    encode_enc(newimg, image_hidden_as_data)
+
+    new_img_name = input("Entrer le nom de la nouvelle image (.png) : ")
+    newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
 
 def decode_image():
+    img = input("Chemin relatif de l'image porteuse (.png) : ")
+    image_carrying = Image.open(img, 'r')
+
     data = ''
 
-    newimg = ''
+    newimg = image_carrying.copy()
+
     new_img_name = input("Entrer le nom de la nouvelle image (.png) : ")
     newimg.save(new_img_name, str(new_img_name.split(".")[1].upper()))
 
