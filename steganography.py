@@ -1,5 +1,8 @@
 from PIL import Image
 
+def get_num_pixels(img):
+    width, height = img.size
+    return width*height
 
 # Génère une chaîne de 0 et 1 à partir d'une image.
 # C'est vraiment une mauvaise idée de faire ça.
@@ -48,8 +51,10 @@ def encode_hidden_into_carrying(img_carrying, img_hidden):
     img_carrying_data = iter(img_carrying.getdata())
     img_hidden_data = iter(img_hidden.getdata())
 
+    pix_index = 0
+
     # DEBUT BOUCLE ITERANT SUR PIXELS IMAGE CACHEE
-    while (True):
+    while (pix_index < get_num_pixels(img_hidden)):
         # Il va falloir controler les tailles dees images pour éviter les out of bound ex
         # pour chaque pixel x,y de l'hidden, récupération de [r,g,b] de x et y en base 256
         pix_hidden = [values_256 for values_256 in img_hidden_data.__next__()[:3]]  # tableau de trois valeurs 256
@@ -84,7 +89,7 @@ def encode_hidden_into_carrying(img_carrying, img_hidden):
                 # Iteration dans la matrice actuelle
                 if mx < 23:
                     mx += 1
-
+        pix_index += 1
     # FIN BOUCLE ITERANT SUR PIXELS IMAGE CACHEE
 
 
